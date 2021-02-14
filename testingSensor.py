@@ -1,11 +1,7 @@
 # Python 3 server example
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import time
-
-hostName = "localhost"
-serverPort = 8080
-array = []
-counter = 0;
+import os 
 
 
 
@@ -17,23 +13,38 @@ def arrayUpdate():
     array.append(counter)
 
 
-
 class MyServer(BaseHTTPRequestHandler):
     def do_GET(self):
+        
         global array
         arrayUpdate()
-        
+
         self.send_response(200)
         self.send_header("Content-type", "text/html")
         self.end_headers()
-        self.wfile.write(bytes("<html><head><title>https://pythonbasics.org</title></head>", "utf-8"))
-        self.wfile.write(bytes("<p>Request: %s</p>" % self.path, "utf-8"))
-        self.wfile.write(bytes("<body>", "utf-8"))
-        self.wfile.write(bytes("<script> var myArray =" + str(array) +"</script>", "utf-8"))
-        self.wfile.write(bytes("<p>This is an example web server. </p>", "utf-8"))
-        self.wfile.write(bytes("</body></html>", "utf-8"))
 
-if __name__ == "__main__":        
+
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+
+        with open(dir_path + '/MainFile.html', 'rb') as file: 
+            self.wfile.write(file.read())
+
+        #Sends array containing data
+
+        self.wfile.write(bytes("var myArray =" + str(array) +"</script>", "utf-8"))
+        self.wfile.write(bytes("\n","utf-8"))
+
+        self.wfile.write(bytes("</body></html>", "utf-8"))
+        self.wfile.write(bytes("\n","utf-8"))
+
+
+if __name__ == "__main__":
+
+    hostName = "localhost"
+    serverPort = 8080
+    array = []
+    counter = 0
+
     webServer = HTTPServer((hostName, serverPort), MyServer)
     print("Server started http://%s:%s" % (hostName, serverPort))
 
